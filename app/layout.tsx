@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import Navbar from '@/components/main/layout/navbar';
+import Footer from '@/components/main/layout/footer';
 
 export const metadata: Metadata = {
   title: "KU Admission 70",
@@ -38,9 +39,12 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <div className="font-body">
+          <div className="font-body flex flex-col min-h-screen">
             <Navbar />
-            {children}
+            <main className="grow container mx-auto">
+              {children}
+            </main>
+            <Footer />
           </div>
         </ThemeProvider>
       </body>
