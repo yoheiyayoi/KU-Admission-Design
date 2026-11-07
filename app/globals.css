@@ -126,8 +126,12 @@
     }
   body {
     @apply bg-[#fafafa] text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
+
+  .custom-container {
+    @apply px-4 pt-6 max-w-7xl mx-auto;
+  }
 }

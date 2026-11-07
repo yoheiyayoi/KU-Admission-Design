@@ -9,7 +9,7 @@ export default function Page() {
     <div className="mx-auto">
       <HomeCarousel />
 
-      <div className="px-4 pt-6 max-w-7xl mx-auto space-y-8">
+      <div className="custom-container space-y-8">
         <News />
         <AdmissionPlaces />
       </div>

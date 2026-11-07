@@ -55,11 +55,11 @@ export default function AdmissionPlaces() {
                         {/* สคริมไล่สีด้านล่างเพื่อให้ชื่อวิทยาเขตอ่านได้ชัดบนภาพ */}
                         <div
                             aria-hidden="true"
-                            className="absolute inset-0 bg-linear-to-b from-black/0 via-black/15 to-black/70"
+                            className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 via-55% to-transparent"
                         />
 
                         <div className="absolute inset-x-3 bottom-3">
-                            <p className="line-clamp-2 text-base leading-snug font-medium text-white">
+                            <p className="mb-1 line-clamp-2 text-lg text-shadow leading-snug font-medium text-white">
                                 {place.name}
                             </p>
 

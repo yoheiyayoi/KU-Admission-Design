@@ -18,7 +18,8 @@ import { Menu } from "lucide-react";
 export const NavLinks = {
   "หน้าแรก": "/",
   "ปฎิทิน": "/calender",
-  "ค้นหาสาขา": "/majors",
+  "สาขาและโครงการรับสมัคร": "/majors",
+  "ค้นหาสาขา": "/majors/search",
   "ติดต่อเรา": "/contact"
 }
 
@@ -27,7 +28,7 @@ export default function Navbar() {
     <header className="bg-white text-(--ku-color) font-heading p-4 sticky top-0 z-50 border" >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
-        <div className="flex gap-3 cursor-default">
+        <Link className="flex gap-3" href="/">
           <Image
             src="/ku-name-logo.svg"
             alt="Profile photo"
@@ -40,7 +41,7 @@ export default function Navbar() {
             <h1>ระบบรับสมัครนักศึกษา</h1>
             <h1>มหาวิทยาลัยเกษตรศาสตร์</h1>
           </div>
-        </div>
+        </Link>
 
         <div className="hidden md:flex gap-6">
           {Object.entries(NavLinks).map(([label, href]) => (
