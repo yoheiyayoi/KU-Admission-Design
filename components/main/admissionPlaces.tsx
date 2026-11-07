@@ -43,7 +43,7 @@ export default function AdmissionPlaces() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`เว็บไซต์การรับสมัคร ${place.name}`}
-                        className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10 transition-all hover:-translate-y-0.5 hover:ring-(--ku-color)/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ku-color)/60"
+                        className="group relative w-full h-45 overflow-hidden rounded-xl bg-muted transition-all hover:-translate-y-0.5 hover:ring-(--ku-color)/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ku-color)/60"
                     >
                         <img
                             src={place.image}
