@@ -18,7 +18,7 @@ export default function HomeCarousel() {
     return (
         // มีการใช้ AI ช่วยแก้ปัญหาขนาดภาพไม่เท่ากัน ให้สามารถแสดงผลได้สวยงาม
         <div className="w-full mx-auto">
-            <Carousel className="w-full">
+            <Carousel className="w-full" opts={{ loop: true }}>
                 <CarouselContent>
                     {images.map((image, index) => (
                         <CarouselItem key={index}>

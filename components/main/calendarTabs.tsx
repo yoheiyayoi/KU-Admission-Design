@@ -11,6 +11,7 @@ import {
     TabsTrigger,
 } from "@/components/ui/tabs"
 
+// AI แก้ type error ให้
 export const CALENDAR_ROUND_VISIBILITY: Record<string, boolean> = {
     round1: true,
     round2: true,
@@ -18,6 +19,7 @@ export const CALENDAR_ROUND_VISIBILITY: Record<string, boolean> = {
     round4: false,
 }
 
+// AI สร้าง Table อันนี้
 function CampusTable({ campus }: { campus: CalendarRound["campuses"][number] }) {
     const valueColumnCount = Math.max(
         campus.subColumns?.length ?? 0,
@@ -27,7 +29,7 @@ function CampusTable({ campus }: { campus: CalendarRound["campuses"][number] }) 
 
     return (
         <div className="px-4 py-4 border-b border-foreground/5 last:border-b-0">
-            <h3 className="mb-2 text-base font-medium text-foreground">
+            <h3 className="mb-2 text-base font-semibold text-foreground">
                 {campus.name}
             </h3>
 
@@ -96,7 +98,7 @@ export default function CalendarTabs({ rounds }: { rounds: CalendarRound[] }) {
                     <TabsTrigger
                         key={round.id}
                         value={round.id}
-                        className="h-auto! min-h-10 w-full rounded-b-none px-2 text-center text-sm font-semibold leading-tight whitespace-normal sm:px-3"
+                        className="h-auto! min-h-10 w-full rounded-b-none px-2 text-center text-base font-semibold leading-tight whitespace-normal sm:px-3"
                     >
                         {round.label}
                     </TabsTrigger>

@@ -20,7 +20,6 @@ export const NavLinks = {
   "ปฎิทิน": "/calender",
   "สาขาและโครงการรับสมัคร": "/majors",
   "ค้นหาสาขา": "/majors/search",
-  "ติดต่อเรา": "/contact"
 }
 
 export default function Navbar() {
