@@ -8,8 +8,8 @@ import Navbar from '@/components/main/layout/navbar';
 import Footer from '@/components/main/layout/footer';
 
 export const metadata: Metadata = {
-  title: "KU Admission 70",
-  description: "การสมัครเข้าศึกษาต่อมหาวิทยาลัยเกษตรศาสตร์ ปีการศึกษา 2570"
+  title: "KU Admission 70 (เว็บทำลอง)",
+  description: "เว็บไซต์การสมัครเข้าศึกษาต่อมหาวิทยาลัยเกษตรศาสตร์ ปีการศึกษา 2570"
 };
 
 const headingFont = IBM_Plex_Sans_Thai({
