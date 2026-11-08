@@ -44,13 +44,13 @@ function MajorRow({ major }: { major: MajorProgram }) {
                     </span>
                 )}
                 <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] leading-snug">{major.title}</span>
+                    <span className="block text-base leading-snug">{major.title}</span>
                     {major.projects.length > 0 && (
                         <span className="mt-1 flex flex-wrap gap-1">
                             {major.projects.map((project) => (
                                 <span
                                     key={project}
-                                    className="rounded-md bg-(--ku-color)/8 px-1.5 py-px text-xs text-(--ku-color)"
+                                    className="rounded-md bg-(--ku-color)/8 px-1.5 py-px text-sm text-(--ku-color)"
                                 >
                                     {project}
                                 </span>

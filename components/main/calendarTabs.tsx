@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react'
 
 import { Card } from "@/components/ui/card"
@@ -85,20 +87,38 @@ function CampusTable({ campus }: { campus: CalendarRound["campuses"][number] }) 
 
 export default function CalendarTabs({ rounds }: { rounds: CalendarRound[] }) {
     const visibleRounds = rounds.filter((round) => CALENDAR_ROUND_VISIBILITY[round.id] ?? true)
+    const [active, setActive] = React.useState<string | null>(visibleRounds[0]?.id ?? null)
+    const listRef = React.useRef<HTMLDivElement>(null)
+
+    // เมื่อสลับแท็บในหน้าจอเล็ก เรียกให้แท็บที่เลือกเลื่อนมากลางจอพอดี (scroll strip แนวนอน)
+    React.useEffect(() => {
+        const list = listRef.current
+        const tab = list?.querySelector<HTMLElement>('[data-composite-item-active]')
+        if (!list || !tab) return
+        list.scrollTo({
+            left: tab.offsetLeft - list.clientWidth / 2 + tab.clientWidth / 2,
+            behavior: "smooth",
+        })
+    }, [active])
 
     if (visibleRounds.length === 0) return null
 
     return (
-        <Tabs defaultValue={visibleRounds[0].id} className="w-full gap-0">
+        <Tabs
+            value={active}
+            onValueChange={(value) => setActive(value === null ? null : String(value))}
+            className="w-full gap-0"
+        >
             <TabsList
-                className="grid h-auto! w-full! rounded-b-none p-0 shadow-none"
-                style={{ gridTemplateColumns: `repeat(${visibleRounds.length}, minmax(0, 1fr))` }}
+                ref={listRef}
+                className="grid h-auto! w-full! justify-start! gap-0 auto-cols-max grid-flow-col overflow-x-auto rounded-b-none p-0 shadow-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-[repeat(var(--cols),minmax(0,1fr))] sm:overflow-visible"
+                style={{ "--cols": visibleRounds.length } as React.CSSProperties}
             >
                 {visibleRounds.map((round) => (
                     <TabsTrigger
                         key={round.id}
                         value={round.id}
-                        className="h-auto! min-h-10 w-full rounded-b-none px-2 text-center text-base font-semibold leading-tight whitespace-normal sm:px-3"
+                        className="h-auto! min-h-11 rounded-b-none px-3 text-center text-base font-semibold leading-tight whitespace-nowrap sm:min-w-0 sm:whitespace-normal"
                     >
                         {round.label}
                     </TabsTrigger>

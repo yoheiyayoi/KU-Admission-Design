@@ -11,10 +11,9 @@ export default function Footer() {
             <div className="mx-auto w-full max-w-6xl px-6">
                 <div className="flex flex-col gap-10 py-10 sm:flex-row sm:items-start sm:gap-16 sm:py-12">
                     <div className="flex min-w-0 flex-col items-start gap-3">
-                        <Image
+                        <img
                             src="ku-name-logo.svg"
-                            width={50}
-                            height={50}
+                            className="size-12"
                             alt="KU"
                         />
 
