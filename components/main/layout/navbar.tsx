@@ -15,7 +15,7 @@ import { useState } from "react";
 
 export const NavLinks = {
   "หน้าหลัก": "/",
-  "ปฎิทิน": "/calender",
+  "ปฏิทิน": "/calender",
   "สาขาและโครงการรับสมัคร": "/majors",
   "ค้นหาสาขา": "/majors/search",
 }
