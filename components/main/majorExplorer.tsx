@@ -18,7 +18,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowUpRight, ChevronDown, GraduationCap, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { MajorCampus, MajorFaculty, MajorProgram, MajorsDirectory } from "@/lib/majors"
+import type {
+    MajorCampus,
+    MajorFaculty,
+    MajorProgram,
+    MajorProject,
+    MajorsDirectory,
+} from "@/lib/majors"
 
 function Stat({ label, value }: { label: string; value: string }) {
     return (
@@ -31,7 +37,7 @@ function Stat({ label, value }: { label: string; value: string }) {
     )
 }
 
-function MajorRow({ major }: { major: MajorProgram }) {
+function MajorRow({ major, projects }: { major: MajorProgram; projects: MajorProject[] }) {
     return (
         <li className="py-2.5 first:pt-3 last:pb-3">
             <div className="flex items-start gap-2.5">
@@ -45,16 +51,21 @@ function MajorRow({ major }: { major: MajorProgram }) {
                 )}
                 <span className="min-w-0 flex-1">
                     <span className="block text-base leading-snug">{major.title}</span>
-                    {major.projects.length > 0 && (
+                    {projects.length > 0 && (
                         <span className="mt-1 flex flex-wrap gap-1">
-                            {major.projects.map((project) => (
+                            {projects.map((project) => (
                                 <span
-                                    key={project}
+                                    key={`${project.name}-${project.round ?? "x"}`}
                                     className="rounded-md bg-(--ku-color)/8 px-1.5 py-px text-sm text-(--ku-color)"
                                 >
-                                    {project}
+                                    {project.name}
                                 </span>
                             ))}
+                        </span>
+                    )}
+                    {major.projects.length > 0 && projects.length === 0 && (
+                        <span className="mt-1 block text-sm text-muted-foreground">
+                            ไม่เปิดรับในรอบนี้
                         </span>
                     )}
                 </span>
@@ -67,10 +78,12 @@ function FacultySection({
     faculty,
     open,
     onToggle,
+    projectsFor,
 }: {
     faculty: MajorFaculty
     open: boolean
     onToggle: () => void
+    projectsFor: (major: MajorProgram) => MajorProject[]
 }) {
     return (
         <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
@@ -128,7 +141,11 @@ function FacultySection({
                         {faculty.majors.length > 0 ? (
                             <ul className="divide-y divide-foreground/5">
                                 {faculty.majors.map((major) => (
-                                    <MajorRow key={major.name} major={major} />
+                                    <MajorRow
+                                        key={major.name}
+                                        major={major}
+                                        projects={projectsFor(major)}
+                                    />
                                 ))}
                             </ul>
                         ) : (
@@ -150,6 +167,8 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
     )
     const [query, setQuery] = useState("")
     const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
+    // null = ดูครบทุกรอบ, เลขรอบ = กรองเฉพาะโครงการของรอบนั้น
+    const [selectedRound, setSelectedRound] = useState<number | null>(null)
 
     const campus = useMemo(
         () => campuses.find((item: MajorCampus) => item.id === selectedCampusId) ?? null,
@@ -176,6 +195,15 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
     const campusMajors = useMemo(
         () => campus ? campus.faculties.reduce((sum, faculty) => sum + faculty.majors.length, 0) : 0,
         [campus]
+    )
+
+    // กรองโครงการตามรอบที่เลือก (null = ทุกรอบ)
+    const projectsFor = useMemo(
+        () => (major: MajorProgram): MajorProject[] =>
+            selectedRound === null
+                ? major.projects
+                : major.projects.filter((project) => project.round === selectedRound),
+        [selectedRound]
     )
 
     const normalizedQuery = query.trim().toLowerCase()
@@ -219,6 +247,7 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
         setSelectedCampusId(next?.id ?? null)
         setQuery("")
         setExpandedIds(new Set())
+        setSelectedRound(null)
     }
 
     return (
@@ -347,6 +376,48 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
                         )}
                     </div>
 
+                    {campus.rounds.length > 0 && (
+                        <div
+                            role="group"
+                            aria-label="รอบการรับสมัคร"
+                            className="flex flex-wrap items-center gap-2"
+                        >
+                            <span className="text-sm text-muted-foreground">รอบการรับสมัคร:</span>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant={selectedRound === null ? "default" : "outline"}
+                                onClick={() => setSelectedRound(null)}
+                                aria-pressed={selectedRound === null}
+                                className={cn(
+                                    selectedRound === null &&
+                                        "bg-(--ku-color) text-white hover:bg-(--ku-color)/90"
+                                )}
+                            >
+                                ทั้งหมด
+                            </Button>
+                            {campus.rounds.map((round) => {
+                                const active = selectedRound === round.number
+                                return (
+                                    <Button
+                                        key={round.number}
+                                        type="button"
+                                        size="sm"
+                                        variant={active ? "default" : "outline"}
+                                        onClick={() => setSelectedRound(active ? null : round.number)}
+                                        aria-pressed={active}
+                                        className={cn(
+                                            active &&
+                                                "bg-(--ku-color) text-white hover:bg-(--ku-color)/90"
+                                        )}
+                                    >
+                                        {round.label}
+                                    </Button>
+                                )
+                            })}
+                        </div>
+                    )}
+
                     {normalizedQuery ? (
                         <div className="space-y-5">
                             {searchGroups.length > 0 ? (
@@ -365,7 +436,11 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
                                             </h3>
                                             <ul className="divide-y divide-foreground/5 rounded-xl bg-card px-4 py-1 ring-1 ring-foreground/10">
                                                 {hits.map((major) => (
-                                                    <MajorRow key={major.name} major={major} />
+                                                    <MajorRow
+                                                        key={major.name}
+                                                        major={major}
+                                                        projects={projectsFor(major)}
+                                                    />
                                                 ))}
                                             </ul>
                                         </section>
@@ -395,6 +470,7 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
                                     faculty={faculty}
                                     open={expandedIds.has(faculty.id)}
                                     onToggle={() => toggleFaculty(faculty.id)}
+                                    projectsFor={projectsFor}
                                 />
                             ))}
                             {campus.faculties.length === 0 && (

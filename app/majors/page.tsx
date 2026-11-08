@@ -12,7 +12,7 @@ export default async function MajorsPage() {
                     สาขาและโครงการที่รับสมัคร
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground sm:text-base">
-                    เลือกวิทยาเขตเพื่อดูสาขาและโครงการที่แต่ละคณะเปิดรับ
+                    เลือกวิทยาเขตเพื่อดูสาขาและโครงการที่แต่ละคณะเปิดรับ พร้อมรอบการรับสมัคร
                     {directory.source === "snapshot" && " (กำลังแสดงข้อมูลสำรอง)"}
                 </p>
             </div>

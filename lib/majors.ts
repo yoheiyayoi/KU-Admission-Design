@@ -2,18 +2,30 @@
 // เว็บไซต์ไม่มี API/JSON ให้เรียกตรงๆ จึงดึง HTML มาวิเคราะห์ตอน request เหมือน lib/calendar.ts
 //   - รายชื่อวิทยาเขต + คณะ  อ่านจาก <select class="target-selects"> ซึ่งทุกหน้าแสดงชุดเดียวกัน
 //     (option ของวิทยาเขตมี data-sel-type="campus", ของคณะมี data-sel-type="faculty")
+//   - รอบการรับสมัคร อ่านจากปุ่ม <a class="nav-link round-buttons" data-round-number="N"> เช่น "รอบที่ 1"
 //   - รายชื่อสาขา/โครงการต่อคณะ อ่านจากตาราง <table id="majorTableId"> ของแต่ละวิทยาเขต
 //     แต่ละแถวสาขามีคอลัมน์โครงการ (ช้างเผือก, นานาชาติ, พสวท. ฯลฯ) ที่มีเครื่องหมาย ✓ = เปิดรับผ่านโครงการนั้น
+//     ชื่อคอลัมน์เก็บชื่อเต็มพร้อมรอบย่อย (เช่น "ช้างเผือก (รอบ 1.1)") และเลขรอบจาก class p-round-N
 // หากโครงสร้างหน้าเว็บเปลี่ยนไปจนวิเคราะห์ไม่ได้ จะคืนข้อมูลสำรอง (lib/majors-snapshot.ts) ที่ดึงไว้แล้วแทน
 
 // หมายเหตุ: โค้ดในไฟล์นี้หลีกเลี่ยงไวยากรณ์ TS ที่ type-stripping ของ Node ลบไม่ได้ (enum/namespace ฯลฯ)
 // เพื่อให้ scripts/refresh-ku-snapshot.mjs import parser แล้ว rerun ข้อมูลสำรองได้โดยตรง
 
+export type MajorProject = {
+    name: string // ชื่อเต็มโครงการที่แสดง เช่น "ช้างเผือก (รอบ 1.1)" หรือ "เรียนล่วงหน้า"
+    round: number | null // เลขรอบการรับสมัคร เช่น 1 (จาก class p-round-N ของคอลัมน์)
+}
+
+export type MajorRound = {
+    number: number // เลขรอบ เช่น 1
+    label: string // ฉลากสำหรับแสดง เช่น "รอบที่ 1"
+}
+
 export type MajorProgram = {
     name: string // ชื่อเต็ม เช่น "วท.บ. สาขาวิชาคณิตศาสตร์ (ภาษาไทย ปกติ)"
     degree: string | null // วุฒิ/ชื่อปริญญา เช่น "วท.บ." (ถอดจาก prefix ของชื่อ)
     title: string // ชื่อสาขาที่เหลือ เช่น "สาขาวิชาคณิตศาสตร์ (ภาษาไทย ปกติ)"
-    projects: string[] // โครงการที่เปิดรับ เช่น ["ช้างเผือก", "พสวท."]
+    projects: MajorProject[] // โครงการที่เปิดรับ เช่น [{ name: "ช้างเผือก (รอบ 1.1)", round: 1 }]
 }
 
 export type MajorFaculty = {
@@ -27,6 +39,7 @@ export type MajorCampus = {
     id: number
     name: string
     url: string
+    rounds: MajorRound[] // รอบการรับสมัครที่หน้าเว็บประกาศ เช่น [{ number: 1, label: "รอบที่ 1" }]
     faculties: MajorFaculty[]
 }
 
@@ -97,14 +110,10 @@ export function parseSelectOptions(html: string): KUOption[] {
     return options
 }
 
-/** ตัด "(รอบ x.x)" ท้ายชื่อโครงการออก เพื่อรวมคอลัมน์ย่อย 1.1/1.2 เป็นโครงการเดียวกัน */
-function stripRoundSuffix(label: string): string {
-    return label.replace(/\s*\(รอบ[^)]*\)\s*$/g, "").trim()
-}
-
 /**
  * หัวตารางใช้ <br> คั่นคำ ทำให้ชื่อโครงการมีช่องว่างหลงมา (เช่น "นานาชาติและ ภาษาอังกฤษ")
  * ตัดช่องว่างระหว่างอักษรไทยทิ้งให้เหลือชื่อเดียว ("นานาชาติและภาษาอังกฤษ")
+ * ชื่อโครงการคง "(รอบ x.y)" ไว้เพื่อแสดงเหมือนเว็บต้นทาง เช่น "ช้างเผือก (รอบ 1.1)"
  */
 function collapseThaiSpaces(label: string): string {
     const re = /([\u0E00-\u0E7F])\s+([\u0E00-\u0E7F])/g
@@ -126,17 +135,44 @@ function toMajorProgram(name: string): { degree: string | null; title: string } 
     return { degree: null, title: name }
 }
 
-/** ชื่อคอลัมน์โครงการจาก <thead> ของตารางสาขา */
-function parseProjectColumns(tableHtml: string): string[] {
+/** อ่านรอบการรับสมัครจากปุ่ม <a class="nav-link round-buttons" data-round-number="N"> บนหน้าวิทยาเขต
+ * (อยู่ใน <ul class="nav nav-pills ..."> ถัดจากป้าย "รอบการรับสมัคร:") เช่น { number: 1, label: "รอบที่ 1" } */
+export function parseCampusRounds(html: string): MajorRound[] {
+    const pills = html.match(/<ul class="nav nav-pills mb-1 pb-2">([\s\S]*?)<\/ul>/i)?.[1]
+    if (!pills) return []
+
+    const rounds: MajorRound[] = []
+    for (const m of pills.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
+        if (!/round-buttons/.test(m[1])) continue // ข้ามป้าย "รอบการรับสมัคร:" ที่ไม่ใช่ปุ่มรอบ
+        const number = Number(m[1].match(/data-round-number="(\d+)"/i)?.[1])
+        const label = textOnly(m[2])
+        if (!Number.isFinite(number) || !label) continue
+        rounds.push({ number, label })
+    }
+    return rounds
+}
+
+/**
+ * ชื่อคอลัมน์โครงการจาก <thead> ของตารางสาขา
+ * เก็บชื่อเต็ม (รวม "(รอบ 1.1)" ถ้ามี) และเลขรอบจาก class p-round-N เพื่อ
+ *   - แสดงเหมือนเว็บต้นทาง เช่น "ช้างเผือก (รอบ 1.1)" แทนการรวมสองคอลัมน์เป็น "ช้างเผือก"
+ *   - กรองรายการตามรอบการรับสมัครในหน้าเว็บของเรา
+ */
+function parseProjectColumns(tableHtml: string): MajorProject[] {
     const thead = tableHtml.match(/<thead[^>]*>([\s\S]*?)<\/thead>/i)?.[1]
     if (!thead) return []
 
-    const columns: string[] = []
-    for (const m of thead.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)) {
-        const label = collapseThaiSpaces(stripRoundSuffix(textOnly(m[1])))
-        if (label && label !== "สาขาวิชา") columns.push(label)
+    const projects: MajorProject[] = []
+    for (const m of thead.matchAll(/<th\b([^>]*)>([\s\S]*?)<\/th>/gi)) {
+        const label = collapseThaiSpaces(textOnly(m[2]))
+        if (!label || label === "สาขาวิชา") continue
+        const roundMatch = m[1].match(/class="[^"]*\bp-round-(\d+)\b[^"]*"/i)
+        const project = { name: label, round: roundMatch ? Number(roundMatch[1]) : null }
+        if (!projects.some((p) => p.name === project.name && p.round === project.round)) {
+            projects.push(project)
+        }
     }
-    return columns
+    return projects
 }
 
 /**
@@ -181,7 +217,7 @@ export function parseMajorSections(
         if (!name) continue
         const { degree, title } = toMajorProgram(name)
 
-        const projectsForMajor: string[] = []
+        const projectsForMajor: MajorProject[] = []
         for (let i = 0; i < Math.min(cells.length - 1, projects.length); i += 1) {
             const project = projects[i]
             if (project && /fa-check/.test(cells[i + 1]) && !projectsForMajor.includes(project)) {
@@ -229,6 +265,7 @@ export function parseMajorsDirectory(pages: KUCampusPage[]): MajorCampus[] {
                 id: option.id,
                 name: option.name,
                 url: kuUrl("campus", option.id),
+                rounds: [],
                 faculties: [],
             }
         } else if (option.type === "faculty" && current) {
@@ -251,6 +288,28 @@ export function parseMajorsDirectory(pages: KUCampusPage[]): MajorCampus[] {
             ...faculty,
             majors: matchMajorSection(faculty.name, sections)?.majors ?? [],
         }))
+
+        // รอบการรับสมัคร: เอามาจากปุ่มบนหน้า และรวมเลขรอบจากคอลัมน์โครงการด้วย
+        // (เผื่อหน้าเว็บเปลี่ยนไม่แสดงปุ่มแต่คอลัมน์ยังมี class p-round-N) เรียงตามเลขรอบ
+        const fromPills = parseCampusRounds(page.html)
+        const seen = new Set(campus.rounds.map((round) => round.number))
+        const rounds = [...campus.rounds]
+        for (const round of fromPills) {
+            if (seen.has(round.number)) continue
+            seen.add(round.number)
+            rounds.push(round)
+        }
+        for (const faculty of campus.faculties) {
+            for (const major of faculty.majors) {
+                for (const project of major.projects) {
+                    if (project.round === null || seen.has(project.round)) continue
+                    seen.add(project.round)
+                    rounds.push({ number: project.round, label: `รอบที่ ${project.round}` })
+                }
+            }
+        }
+        rounds.sort((a, b) => a.number - b.number)
+        campus.rounds = rounds
     }
     return campuses
 }

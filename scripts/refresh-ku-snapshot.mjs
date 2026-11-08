@@ -83,6 +83,7 @@ for (const campus of campuses) {
     lines.push(`        id: ${campus.id},`)
     lines.push(`        name: ${JSON.stringify(campus.name)},`)
     lines.push(`        url: ${JSON.stringify(campus.url)},`)
+    lines.push(`        rounds: ${JSON.stringify(campus.rounds)},`)
     lines.push(`        faculties: [`)
     for (const faculty of campus.faculties) {
         lines.push(facultyLiteral(faculty, 12).split("\n").map((l) => "        " + l).join("\n") + ",")

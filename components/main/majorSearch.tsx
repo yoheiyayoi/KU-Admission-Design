@@ -152,11 +152,11 @@ function Results({
         <section className="space-y-5" aria-label={`ผลการค้นหา ${query}`}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <p className="text-sm text-muted-foreground">
-                    พบ <span className="font-medium text-foreground">{total}</span> สาขา สำหรับคำค้น{" "}
+                    พบ <span className="font-medium text-foreground">{total}</span> สาขา สำหรับคำค้นหา{" "}
                     <span className="font-medium text-foreground">“{query}”</span>
                 </p>
                 {results.length > 0 && (
-                    <p className="text-xs text-muted-foreground">เฉพาะโครงการที่เปิดรับในรอบที่ 1</p>
+                    <p className="text-sm text-muted-foreground">เฉพาะโครงการที่เปิดรับในรอบที่ 1</p>
                 )}
             </div>
 
@@ -186,6 +186,14 @@ function Results({
 }
 
 function ResultItem({ result }: { result: MajorSearchResult }) {
+    const CAMPUS_COLOR: Record<string, string> = {
+        "บางเขน": "bg-green-100 text-green-800",
+        "กำแพงแสน": "bg-blue-300 text-blue-800",
+        "ศรีราชา": "bg-orange-100 text-orange-800",
+        "สกลนคร": "bg-yellow-100 text-yellow-800",
+        "สุพรรณบุรี": "bg-pink-200 text-pink-800",
+    }
+
     return (
         <li>
             <Card className="gap-0 overflow-hidden p-0">
@@ -208,7 +216,7 @@ function ResultItem({ result }: { result: MajorSearchResult }) {
                                 <GraduationCap aria-hidden="true" className="size-4" />
                                 <span className="min-w-0">{result.faculty}</span>
                                 {result.campus && (
-                                    <span className="rounded-md bg-foreground/5 px-1.5 py-px text-xs ring-1 ring-foreground/10">
+                                    <span className={`rounded-md bg-foreground/5 px-1.5 py-px text-xs ${CAMPUS_COLOR[result.campus] || 'bg-foreground/5 px-1.5 py-px text-xs ring-1 ring-foreground/10'}`}>
                                         {result.campus}
                                     </span>
                                 )}
