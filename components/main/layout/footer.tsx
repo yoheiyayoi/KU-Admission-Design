@@ -42,7 +42,10 @@ export default function Footer() {
                     <p className="text-center text-sm tracking-wide text-gray-400 sm:text-left">
                         &copy; {new Date().getFullYear()} yooo_.
 
-                        เครดิตรูปภาพ: KU-Photo และภาพจากเว็บไซต์วิทยาเขต และข้อมูลจาก https://admission.ku.ac.th/
+                        เครดิตรูปภาพ: KU-Photo และภาพจากเว็บไซต์วิทยาเขต และข้อมูลจาก https://admission.ku.ac.th/ <br />
+                        <a href="https://github.com/yoheiyayoi/KU-Admission-Design" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 underline">
+                            ดู Source code บน Github
+                        </a>
                     </p>
                 </div>
             </div>
