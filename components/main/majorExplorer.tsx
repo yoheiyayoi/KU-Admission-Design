@@ -33,7 +33,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function MajorRow({ major }: { major: MajorProgram }) {
     return (
-        <li className="py-2.5 first:pt-1 last:pb-1">
+        <li className="py-2.5 first:pt-3 last:pb-3">
             <div className="flex items-start gap-2.5">
                 {major.degree && (
                     <span
