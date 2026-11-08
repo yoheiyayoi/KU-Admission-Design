@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react";
 
 export const NavLinks = {
-  "หน้าแรก": "/",
+  "หน้าหลัก": "/",
   "ปฎิทิน": "/calender",
   "สาขาและโครงการรับสมัคร": "/majors",
   "ค้นหาสาขา": "/majors/search",
@@ -25,7 +25,7 @@ export const NavLinks = {
 export default function Navbar() {
   return (
     <header className="bg-white text-(--ku-color) font-heading p-4 sticky top-0 z-50 border" >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="max-w-6xl mx-auto flex items-center justify-between">
 
         <Link className="flex gap-3" href="/">
           <Image

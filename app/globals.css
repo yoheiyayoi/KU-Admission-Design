@@ -132,6 +132,6 @@
   }
 
   .custom-container {
-    @apply px-4 pt-6 max-w-7xl mx-auto;
+    @apply px-4 pt-6 max-w-6xl mx-auto;
   }
 }

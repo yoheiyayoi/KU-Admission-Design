@@ -229,7 +229,7 @@ export default function MajorExplorer({ directory }: { directory: MajorsDirector
                 <Stat label="สาขา/โครงการ" value={totals.majors.toLocaleString("th-TH")} />
             </dl> */}
 
-            <Card className="mx-auto max-w-2xl gap-0 p-0 text-base">
+            <Card className="mx-auto w-full gap-0 p-0 text-base">
                 <CardHeader className="flex items-center gap-1.5 bg-gray-50 py-3 font-heading">
                     <Search className="size-4" /> ค้นหา
                 </CardHeader>

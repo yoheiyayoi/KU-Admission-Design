@@ -8,7 +8,7 @@ interface FooterProps {
 export default function Footer() {
     return (
         <footer className="w-full mt-15 border-t border-border/50 bg-white">
-            <div className="mx-auto w-full max-w-7xl px-6">
+            <div className="mx-auto w-full max-w-6xl px-6">
                 <div className="flex flex-col gap-10 py-10 sm:flex-row sm:items-start sm:gap-16 sm:py-12">
                     <div className="flex min-w-0 flex-col items-start gap-3">
                         <Image
